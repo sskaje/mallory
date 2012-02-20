@@ -27,6 +27,15 @@ import AboutDialog
 from config import Config
 # Pyro imports go here
 
+class keyPressEvent(QtCore.QObject):
+    def __init__(self, parent):
+        super(keyPressEvent, self).__init__(parent)
+    def eventFilter(self, object, event):
+        if event.type() == QtCore.QEvent.KeyPress:
+            print event.key()
+            
+            return False
+        return False
 
 class MalloryGui(QtGui.QMainWindow):
     
@@ -60,6 +69,7 @@ class MalloryGui(QtGui.QMainWindow):
         config.logsetup(self.log)
         
     def connecthandlers(self):
+
         self.main.btnicept.clicked.connect(self.handle_interceptclick)
         self.main.btnsend.clicked.connect(self.handle_send)
         self.main.btnclear.clicked.connect(self.handle_clear_streams)
@@ -68,10 +78,10 @@ class MalloryGui(QtGui.QMainWindow):
         self.main.btnsavehex.clicked.connect(self.handle_savehex)
         self.main.btnsavetext.clicked.connect(self.handle_savetext)
         self.main.actionFlow_Config.triggered.connect(self.handle_menuflowconfig)
-      
         self.main.btnauto.clicked.connect(self.updateStatusBar)
         self.main.actionAbout_Mallory.triggered.connect(self.handle_about)
-    
+
+        self.main.tablestreams.installEventFilter(self)
         
     def handle_about(self):
         self.aboutdialog.show()
@@ -82,7 +92,13 @@ class MalloryGui(QtGui.QMainWindow):
         self.hexedit.ready = True 
         self.hexedit.setupTable()
         self.hexedit.loadData("QWERTYUDFGVBHNJDFGHJ")
-        #status = self.statusBar()
+
+        """
+	#Set intercept and auto send on by default
+        self.main.btnicept.setChecked(True)
+        self.remote_debugger.setdebug(True)
+        self.main.btnauto.setChecked(True)	
+        """
         self.updateStatusBar()
 
                  
@@ -105,6 +121,10 @@ class MalloryGui(QtGui.QMainWindow):
                 
     def setupModels(self):
         self.main.tablestreams.setModel(self.streammod)
+    def handle_flipclick(self):
+        pass
+    def handle_colorclick(self):
+        pass
 
     def handle_interceptclick(self):
         if self.main.btnicept.isChecked():
@@ -116,13 +136,41 @@ class MalloryGui(QtGui.QMainWindow):
     def updateStatusBar(self):
         self.main.statusbar.showMessage("Intercept: %s     Autosend: %s" % (str(self.main.btnicept.isChecked()), str(self.main.btnauto.isChecked())))
     
+    def eventFilter(self, object, event):
+        if event.type() == QtCore.QEvent.KeyPress:
+            self.keyPressEvent(event)
+        return False
+            
     def keyPressEvent(self, event):
+        cur = self.main.tablestreams.currentIndex()
+        
         if int(event.key()) == ord('S'):
             self.handle_send()
+        elif cur and int(event.key()) == 16777237: #Down
+            row =  cur.row()+1
+            newIndex  = self.main.tablestreams.model().index(row,0)
+            self.handle_cellclick(newIndex)
+            
+        elif cur and int(event.key()) == 16777235: #Up
+            row =  cur.row()-1
+            newIndex  = self.main.tablestreams.model().index(row,0)
+            self.handle_cellclick(newIndex)
+            
+        
+        #print event.key()
          
     def handle_cellclick(self, index):
         streamdata = self.streammod.getrowdata(index.row())
-        self.main.textstream.setPlainText(streamdata.data)
+        dat = ""
+        try:
+            dat = unicode(streamdata.data)
+        except:
+            for x in streamdata.data:
+                
+                if ord(x) >0 and ord(x) <128:
+                    dat+=(x)
+                    
+        self.main.textstream.setPlainText(QtCore.QString.fromUtf8(dat))
         self.hexedit.loadData(streamdata.data)
         self.curdebugevent = streamdata
                     
@@ -315,7 +363,7 @@ class StreamTable(QtCore.QAbstractTableModel):
                     return self.columns[section]
         
     def insertRows(self, position, numrows, index, event):
-        #print "Inserting row @ %s with numrows=%s index=%s"%(str(position),str(numrows),str(index))
+        print "Inserting row @ %s with numrows=%s index=%s"%(str(position),str(numrows),str(index))
         
         self.beginInsertRows(QtCore.QModelIndex(), position, position+numrows-1)
         self.requests.append(event)
