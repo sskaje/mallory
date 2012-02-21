@@ -31,7 +31,7 @@ class DbGui(object):
     
     """
     def __init__(self, table_dbview, btn_exec_sql, btn_set_flows, text_db_sql,
-                 splitter_db):
+                 splitter_db,dbname):
         self.table_dbview = table_dbview
         self.btn_exec_sql = btn_exec_sql
         self.btn_set_flows = btn_set_flows
@@ -60,7 +60,7 @@ class DbGui(object):
         
         self.connect_handlers()
                 
-        self.db.setDatabaseName("../db/trafficdb")
+        self.db.setDatabaseName("../db/%s"%dbname)
         open = self.db.open()
         
     def connect_handlers(self):

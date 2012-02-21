@@ -298,7 +298,9 @@ class Mallory(Subject):
             - The proxy begins listening for incoming connections
         """        
         dbConn = TrafficDb(self.dbname)
-
+        self.dbname = dbConn.getDbName() #get the trafficDb being used
+        self.debugger.setdatabase(self.dbname)
+        
         # Kick off a thread for the debugger
         #thread.start_new_thread(self.debugger.rpcserver, ())
         
@@ -359,7 +361,8 @@ class Mallory(Subject):
             #udp.attach(self.debugger)
             
             thread.start_new_thread(udp.forward_any, ())
-                    
+            
+            
             # Handle TCP
             while 1:
                 # Clean up first
