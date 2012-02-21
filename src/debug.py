@@ -55,7 +55,13 @@ class Debugger(Subject, Pyro.core.ObjBase):
         self.debugq = Queue.Queue()
         self.debugon = False
         self.log = logging.getLogger("mallorymain")
-
+    
+    def setdatabase(self,dbname):
+        self.dbname = dbname
+    
+    def getdatabase(self):
+        return self.dbname
+        
     def setdebug(self, state):
         """
         This method updates the state of debugging and notifies all observers,

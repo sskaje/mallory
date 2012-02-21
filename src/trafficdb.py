@@ -18,7 +18,10 @@ class TrafficDb:
         self.dgram = Queue.Queue()
         self.qfuzztcp = Queue.Queue()
         self.qfuzzudp = Queue.Queue()
+        self.createDB()
 
+    def getDbName(self):
+        return self.dbName
     # This method defines the traffic db schema. 
     # TODO: Clean this up a bit. Add PKs and FK refs to maintain ref integrity.  
     def makeTables(self):
@@ -82,9 +85,8 @@ class TrafficDb:
         self.curr.execute(fuzztcp)
         self.curr.execute(fuzzudp)
         self.curr.execute("")
-        
-    # This method should be kicked off as a separate thread
-    def fillDB(self):
+    
+    def createDB(self):
         # Avoid overwriting existing traffic databases
         # TODO: make this nice and proper file handling with exceptions and 
         dbName = os.path.join(self.dbPath, self.dbName)
@@ -102,7 +104,13 @@ class TrafficDb:
             dbName = os.path.join(self.dbPath, self.dbName)
             existed = os.path.exists(dbName)
         
-       
+
+        return [dbName,existed]
+    # This method should be kicked off as a separate thread
+    def fillDB(self):
+        
+        dbName,existed = self.createDB()
+
         self.conn = sqlite3.connect(dbName)
         self.curr = self.conn.cursor()
 

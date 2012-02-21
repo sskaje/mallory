@@ -60,10 +60,11 @@ class MalloryGui(QtGui.QMainWindow):
         debugger_uri = "PYROLOC://127.0.0.1:7766/debugger"
         self.remote_debugger = Pyro.core.getProxyForURI(debugger_uri)
         
+        self.main.dbname = self.remote_debugger.getdatabase()
         #self.proxy = xmlrpclib.ServerProxy("http://localhost:20757")
         #self.objectproxy = xmlrpclib.ServerProxy("http://localhost:20758")
         self.curdebugevent = ""
-
+        print self.main.dbname
         self.log = logging.getLogger("mallorygui")
         config = Config()
         config.logsetup(self.log)
@@ -445,7 +446,7 @@ def main():
     window.setUp()
     window.setupModels()
     
-  
+    
     # Interfaces Editor GUI (self contained in interfaces tab)
     window.interfacesgui = \
         InterfacesGui.InterfacesGui(window.main.tableinterfaces,
@@ -465,7 +466,7 @@ def main():
                                window.main.btndbexec,
                                window.main.btndbflowsq,
                                window.main.textdbsql,
-                               window.main.splitter_db)
+                               window.main.splitter_db,window.main.dbname)
     
     
     window.rulegui = RuleGui.RuleEdit(window.main)
