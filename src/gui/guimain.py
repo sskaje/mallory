@@ -64,7 +64,7 @@ class MalloryGui(QtGui.QMainWindow):
         #self.proxy = xmlrpclib.ServerProxy("http://localhost:20757")
         #self.objectproxy = xmlrpclib.ServerProxy("http://localhost:20758")
         self.curdebugevent = ""
-        print self.main.dbname
+
         self.log = logging.getLogger("mallorygui")
         config = Config()
         config.logsetup(self.log)
@@ -135,7 +135,7 @@ class MalloryGui(QtGui.QMainWindow):
         self.updateStatusBar()
         
     def updateStatusBar(self):
-        self.main.statusbar.showMessage("Intercept: %s     Autosend: %s" % (str(self.main.btnicept.isChecked()), str(self.main.btnauto.isChecked())))
+        self.main.statusbar.showMessage("Intercept: %s     Autosend: %s       Database: %s" % (str(self.main.btnicept.isChecked()), str(self.main.btnauto.isChecked()),self.main.dbname))
     
     def eventFilter(self, object, event):
         if event.type() == QtCore.QEvent.KeyPress:
