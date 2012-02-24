@@ -33,14 +33,14 @@ class keyPressEvent(QtCore.QObject):
     def eventFilter(self, object, event):
         if event.type() == QtCore.QEvent.KeyPress:
             print event.key()
-            
+
             return False
         return False
 
 class MalloryGui(QtGui.QMainWindow):
-    
+
     iceptClicked = QtCore.pyqtSignal()
-        
+
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.main =  Ui_MainWindow()

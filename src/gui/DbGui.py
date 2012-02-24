@@ -26,9 +26,9 @@ Database View Functionality Is Disabled"""
 class DbGui(object):
     """
     Quick and dirty database GUI
-    
+
     This is an expert interface. But, it is here for whatever it is worth.
-    
+
     """
     def __init__(self, table_dbview, btn_exec_sql, btn_set_flows, text_db_sql,
                  splitter_db,dbname):
@@ -36,7 +36,7 @@ class DbGui(object):
         self.btn_exec_sql = btn_exec_sql
         self.btn_set_flows = btn_set_flows
         self.text_db_sql = text_db_sql
-        self.splitter_db = splitter_db        
+        self.splitter_db = splitter_db
         self.current_model = None
         self.bufferview = BufferView(self)
         
@@ -60,7 +60,7 @@ class DbGui(object):
         
         self.connect_handlers()
                 
-        self.db.setDatabaseName("../db/%s"%dbname)
+        self.db.setDatabaseName("../db/%s" % (dbname))
         open = self.db.open()
         
     def connect_handlers(self):
