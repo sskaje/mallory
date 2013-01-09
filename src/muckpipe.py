@@ -1,5 +1,6 @@
 import re
 import logging
+import binascii
 
 class Muckr(object):
     def __init__(self, pattern = None, repl = None, count = 0):
@@ -9,9 +10,13 @@ class Muckr(object):
         self.log = logging.getLogger("mallorymain")
     
     def muck(self, data):
-        #print("Muckr.muck: self.pattern: %s, self.repl: %s, self.count:%s" % (self.pattern, repr(self.repl), str(self.count)))
-        x = re.sub(self.pattern, self.repl, data, self.count)
-        #print("Muckr.muck: dataout: %s" % repr(x))
+#        print("Muckr.muck: data: %s, self.pattern: %s, self.repl: %s, self.count:%s" % (binascii.hexlify(data), self.pattern, self.repl, str(self.count)))
+	pat = self.pattern.decode("string_escape")
+	rep = self.repl.decode("string_escape")
+#        self.log.info("Muckr.muck_________: data: %s, self.pattern: %s, self.repl: %s, self.count:%s" % (binascii.hexlify(data), binascii.hexlify(pat), binascii.hexlify(rep), str(self.count)))
+        x = re.sub(pat, rep, data, self.count)
+#        print("Muckr.muck: dataout: %s" % binascii.hexlify(x))
+#        print("Repl: %s", binascii.hexlify(self.repl))
         return x
         
 
