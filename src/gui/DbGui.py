@@ -9,7 +9,7 @@ except:
     
 
 from protocol import http, sslproto
-
+from config import MalloryConfig
 
 FLOWS_QUERY = """
 select c.connCount, c.serverIp, c.serverPort, c.clientIp, c.clientPort, 
@@ -31,7 +31,7 @@ class DbGui(object):
 
     """
     def __init__(self, table_dbview, btn_exec_sql, btn_set_flows, text_db_sql,
-                 splitter_db,dbname):
+                 splitter_db):
         self.table_dbview = table_dbview
         self.btn_exec_sql = btn_exec_sql
         self.btn_set_flows = btn_set_flows
@@ -60,7 +60,8 @@ class DbGui(object):
         
         self.connect_handlers()
                 
-        self.db.setDatabaseName("../db/%s" % (dbname))
+        self.db.setDatabaseName("%s/%s" % (MalloryConfig.get("datadir"), MalloryConfig.get("dbname")))
+
         open = self.db.open()
         
     def connect_handlers(self):

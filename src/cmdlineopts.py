@@ -1,4 +1,5 @@
 import optparse
+import os
 
 class CmdLineOpts(object):    
     def __init__(self):
@@ -43,6 +44,14 @@ class CmdLineOpts(object):
                           "interpret it) will be determined " \
                           "by the real destination, port 80 for HTTP, while " \
                           "the traffic is still sent to the proxy.")
-          
+
+        # default db dir
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        default_datadir = os.path.realpath(current_dir + "/../db/")
+
+        parser.add_option("-D", "--datadir", dest="datadir",
+                          help="Specify the data directory name.",
+                          default=default_datadir)
+
                 
         (self.options, self.args) = parser.parse_args()

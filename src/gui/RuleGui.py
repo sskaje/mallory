@@ -5,8 +5,10 @@ import sys
 import muckpipe
 import binascii
 import Pyro
+from config import MalloryConfig
 
 from PyQt4 import QtGui, QtCore
+from config import MalloryConfig
 
 RULEUP = -1
 RULEDOWN = 1
@@ -31,9 +33,9 @@ class RuleEdit(object):
         self.main = main
         
         # Remote protocol configuration object
-        config_rules_uri = "PYROLOC://127.0.0.1:7766/config_rules"
+        #config_rules_uri = "PYROLOC://127.0.0.1:7766/config_rules"
         self.remote_rule = \
-            Pyro.core.getProxyForURI(config_rules_uri)
+            Pyro.core.getProxyForURI(MalloryConfig.get("config_rules_uri"))
 
         rules = self.remote_rule.get_rules()
         

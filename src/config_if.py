@@ -8,6 +8,7 @@ any POSIX compliant system. Only tested on Linux.
 from ctypes import *
 
 import subprocess
+from config import MalloryConfig
 
 # Structures as defined by:
 # http://www.kernel.org/doc/man-pages/online/pages/man3/getifaddrs.3.html
@@ -41,6 +42,7 @@ class ConfigInterfaces(object):
         self.mitm_interfaces = []
         self.outbound_interfaces = []
         self.banned_interfaces = ['lo']
+        self.saved_iptable_rule_file = "mallory_iptables_backup"
      
     def set_interfaces(self, interfaces):
         self.interfaces = interfaces
@@ -117,6 +119,9 @@ class ConfigInterfaces(object):
         self.interfaces = []
         self.mitm_interfaces = []
         self.outbound_interfaces = []
+
+    def get_iptables_backup_file(self):
+        return MalloryConfig.get("datadir") + "/" + self.saved_iptable_rule_file
      
     def save(self):
         """
@@ -128,8 +133,26 @@ class ConfigInterfaces(object):
         a malicious interface name onto your system to sneak into these shell
         commands you were already in trouble. Probably owned by an APT. 
         """
+
+        # Do nothing if outbound interface not set
+        if len(self.outbound_interfaces) < 1:
+            print "[*] ConfigInterfaces.save: Outbound interface not set"
+            self.restore()
+            print "[*] ConfigInterfaces.save: iptables restored"
+            return False
+
+        # Do nothing if MiTM interfaces is empty
+        if len(self.get_mitm()) < 1:
+            print "[*] ConfigInterfaces.save: MiTM interface not set"
+            self.restore()
+            print "[*] ConfigInterfaces.save: iptables restored"
+            return False
+
         cmds = []
-        
+
+        # save rules
+        cmds.append("test -e "+self.get_iptables_backup_file()+" || iptables-save > " + self.get_iptables_backup_file());
+
         # Turn on ip_forwarding. Linux only
         cmds.append("echo 1 > /proc/sys/net/ipv4/ip_forward")
         
@@ -149,16 +172,51 @@ class ConfigInterfaces(object):
                     ("iptables -t nat -A POSTROUTING -o "
                     "%s -j MASQUERADE") % self.outbound_interfaces[0]
                     )
+        # Mallory listen port
+        port = MalloryConfig.get("listen")
+        print "[*] ConfigInterfaces: Mallory is listening at TCP/UDP (%s)" % port
         for interface in self.get_mitm():
             cmds.append( ("iptables -t nat -A PREROUTING -j REDIRECT -i "
-                          "%s -p tcp -m tcp --to-ports 20755") %  interface)
+                          "%s -p tcp -m tcp --to-ports %s") %  (interface, port))
             cmds.append( ("iptables -t nat -A PREROUTING -j REDIRECT -i "
-                          "%s -p udp -m udp --to-ports 20755") %  interface)
+                          "%s -p udp -m udp --to-ports %s") %  (interface, port))
             
         for cmd in cmds:
             subprocess.call(cmd, shell=True)
         
         print cmds
+
+    def restore(self):
+
+        """
+        This method restores the previously saved rules of proxy box.
+        """
+        cmds = []
+        try:
+            with open(self.get_iptables_backup_file()):
+                # Delete all iptables rules and set it to
+                cmds.append("iptables -F")
+                cmds.append("iptables -X")
+                cmds.append("iptables -t nat -F")
+                cmds.append("iptables -t nat -X")
+                cmds.append("iptables -t mangle -F")
+                cmds.append("iptables -t mangle -X")
+                cmds.append("iptables -P INPUT ACCEPT")
+                cmds.append("iptables -P FORWARD ACCEPT")
+                cmds.append("iptables -P OUTPUT ACCEPT")
+
+                # Restore from rules
+                c = "iptables-restore < "+self.get_iptables_backup_file() + " && rm -f "+self.get_iptables_backup_file()
+                cmds.append(c)
+
+                for cmd in cmds:
+                    subprocess.call(cmd, shell=True)
+
+                print cmds
+                print '[*] ConfigInterfaces: restored from %s' % self.get_iptables_backup_file()
+        except IOError:
+            print '[*] ConfigInterfaces: %s not found' % self.get_iptables_backup_file()
+
     def __str__(self):
         return ("ifs:%s, mitm_ifs:%s, outbound_ifs:%s" 
                     % (self.interfaces, self.mitm_interfaces, 
