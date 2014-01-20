@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore, Qt
 import Pyro.core
 
 from protocol import http, sslproto
+from config import MalloryConfig
 
 class ProtocolsGui(object):
     """
@@ -19,9 +20,9 @@ class ProtocolsGui(object):
         self.splitter_proto.setSizes([200, 100])
                 
         # Remote protocol configuration object
-        config_protocols_uri = "PYROLOC://127.0.0.1:7766/config_proto"
+        #config_protocols_uri = "PYROLOC://127.0.0.1:7766/config_proto"
         self.remote_proto = \
-            Pyro.core.getProxyForURI(config_protocols_uri)
+            Pyro.core.getProxyForURI(MalloryConfig.get("config_protocols_uri"))
         
         # Setup model for table view    
         self.protocols_model = ProtocolsTableModel(self.remote_proto)

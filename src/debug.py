@@ -6,6 +6,7 @@ import UserDict
 import binascii
 import base64
 import pickle
+from config import MalloryConfig
 
 # import Pyro here
 
@@ -61,7 +62,13 @@ class Debugger(Subject, Pyro.core.ObjBase):
     
     def getdatabase(self):
         return self.dbname
-        
+
+    def save_config(self, config_json):
+        self.config_json = config_json
+
+    def get_config(self):
+        return self.config_json
+
     def setdebug(self, state):
         """
         This method updates the state of debugging and notifies all observers,
@@ -162,3 +169,4 @@ class Debugger(Subject, Pyro.core.ObjBase):
         #self.log.debug("Debugger: send_de: got debugevent %s: " %  (debugevent))
         #self.log.debug("Debugger: send_de: got debugevent %s: " %  (de))
         return ""
+

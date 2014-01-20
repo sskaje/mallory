@@ -1,5 +1,6 @@
 import logging
 import sys
+import json
 
 class Config(object):
     def __init__(self):
@@ -27,4 +28,67 @@ class Config(object):
         log.setLevel(logging.DEBUG)
         log.addHandler(console)
         
-        log.info("Logging setup complete")    
+        log.info("Logging setup complete")
+
+
+class MalloryConfigObject():
+    def __init__(self, dict):
+        for field in dict:
+            setattr(self, field, dict[field])
+
+
+class MalloryConfigVars():
+    vars = ["listen", "dbname", "datadir"]
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_vars():
+        return MalloryConfigVars.vars
+
+
+class MalloryConfig():
+    debugger_uri = "PYROLOC://127.0.0.1:7766/debugger"
+    config_protocols_uri = "PYROLOC://127.0.0.1:7766/config_proto"
+    config_rules_uri = "PYROLOC://127.0.0.1:7766/config_rules"
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_object():
+        return MalloryConfigObject(MalloryConfig.get_dict())
+
+    @staticmethod
+    def get_dict():
+        config = {}
+
+        for field in MalloryConfigVars.get_vars():
+            config[field] = MalloryConfig.get(field)
+
+        return config
+
+    @staticmethod
+    def set_dict(dict):
+        for field in dict:
+            MalloryConfig.set(field, dict[field])
+
+    @staticmethod
+    def get_json():
+        return json.dumps(MalloryConfig.get_dict())
+
+    @staticmethod
+    def set_json(json_string):
+        dict = json.loads(json_string)
+        MalloryConfig.set_dict(dict)
+
+    @staticmethod
+    def get(key):
+        return getattr(MalloryConfig, key, "")
+
+    @staticmethod
+    def set(key, val):
+        setattr(MalloryConfig, key, val)
+
+

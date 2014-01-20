@@ -1,4 +1,5 @@
 from PyQt4 import QtGui, QtCore, Qt
+from config import MalloryConfig
 
 import config_if
 
@@ -27,7 +28,7 @@ class InterfacesGui(object):
         self.interfaces_table_view.setModel(self.interfaces_model)
         self.btnsaveifcfg = btnsaveifcfg
         self.btnrefreshifaces = btnrefreshifaces
-        
+
         # Set column widths
         for column in self.interfaces_model.columns.keys():
             self.interfaces_table_view.setColumnWidth(column, 150)

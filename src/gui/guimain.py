@@ -24,8 +24,11 @@ import Pyro.core
 import logging
 import AboutDialog
 
-from config import Config
+from config import Config,MalloryConfig
+
 # Pyro imports go here
+
+import config_if
 
 class keyPressEvent(QtCore.QObject):
     def __init__(self, parent):
@@ -57,10 +60,12 @@ class MalloryGui(QtGui.QMainWindow):
         self.rulegui = None
         self.dbgui = None
         
-        debugger_uri = "PYROLOC://127.0.0.1:7766/debugger"
-        self.remote_debugger = Pyro.core.getProxyForURI(debugger_uri)
-        
-        self.main.dbname = self.remote_debugger.getdatabase()
+        #debugger_uri = "PYROLOC://127.0.0.1:7766/debugger"
+        self.remote_debugger = Pyro.core.getProxyForURI(MalloryConfig.get("debugger_uri"))
+        j = self.remote_debugger.get_config()
+        MalloryConfig.set_json(j)
+
+        #self.main.dbname = self.remote_debugger.getdatabase()
         #self.proxy = xmlrpclib.ServerProxy("http://localhost:20757")
         #self.objectproxy = xmlrpclib.ServerProxy("http://localhost:20758")
         self.curdebugevent = ""
@@ -68,7 +73,7 @@ class MalloryGui(QtGui.QMainWindow):
         self.log = logging.getLogger("mallorygui")
         config = Config()
         config.logsetup(self.log)
-        
+
     def connecthandlers(self):
 
         self.main.btnicept.clicked.connect(self.handle_interceptclick)
@@ -135,7 +140,7 @@ class MalloryGui(QtGui.QMainWindow):
         self.updateStatusBar()
         
     def updateStatusBar(self):
-        self.main.statusbar.showMessage("Intercept: %s     Autosend: %s       Database: %s" % (str(self.main.btnicept.isChecked()), str(self.main.btnauto.isChecked()),self.main.dbname))
+        self.main.statusbar.showMessage("Intercept: %s     Autosend: %s       Database: %s" % (str(self.main.btnicept.isChecked()), str(self.main.btnauto.isChecked()),MalloryConfig.get("dbname")))
     
     def eventFilter(self, object, event):
         if event.type() == QtCore.QEvent.KeyPress:
@@ -241,7 +246,8 @@ class MalloryGui(QtGui.QMainWindow):
                                 
     def check_for_de(self):
         print "[*] MalloryGui: Launching event check thread"
-           
+
+        errorcnt = 0
         eventcnt = 0
         while True:
             try:
@@ -268,8 +274,8 @@ class MalloryGui(QtGui.QMainWindow):
 
                     position = self.streammod.rowCount(None)
                     self.streammod.insertRows(position, 1, QtCore.QModelIndex(), event)
-                    
-                                             
+
+
                     eventsin += 1
                     eventcnt += 1
                                         
@@ -294,7 +300,28 @@ class MalloryGui(QtGui.QMainWindow):
                 print "[*] MalloryGui: check_for_de: exception in de check loop"
                 print sys.exc_info()
                 traceback.print_exc()
-         
+                errorcnt += 1
+                # Sleep every 5 times
+                if errorcnt == 5:
+                    print "[*] MalloryGui: problems encountered, please check"
+                    errorcnt = 0
+                    time.sleep(5)
+
+    def closeEvent(self, event):
+        print "[*] MalloryGui: Closing event begin"
+        quit_msg = "Are you sure you want to exit the program?"
+        reply = QtGui.QMessageBox.question(self, 'Message', quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+        if reply == QtGui.QMessageBox.Yes:
+            if_cfg = config_if.ConfigInterfaces()
+            if_cfg.restore()
+            print "[*] MalloryGui: Closing event Interface Config Restored"
+            event.accept()
+        else:
+            event.ignore()
+
+        print "[*] MalloryGui: Closing event end"
+
 class StreamListDelegate(QtGui.QItemDelegate):
     def __init__(self, parent, model):
         super(StreamListDelegate, self).__init__(parent)        
@@ -446,7 +473,6 @@ def main():
     window.setUp()
     window.setupModels()
     
-    
     # Interfaces Editor GUI (self contained in interfaces tab)
     window.interfacesgui = \
         InterfacesGui.InterfacesGui(window.main.tableinterfaces,
@@ -466,7 +492,7 @@ def main():
                                window.main.btndbexec,
                                window.main.btndbflowsq,
                                window.main.textdbsql,
-                               window.main.splitter_db,window.main.dbname)
+                               window.main.splitter_db)
     
     
     window.rulegui = RuleGui.RuleEdit(window.main)

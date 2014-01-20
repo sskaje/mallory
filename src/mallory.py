@@ -94,6 +94,7 @@ from observer import Subject
 from debug import DebugEvent, Debugger
 from binascii import hexlify, unhexlify
 import cert_auth
+from config import MalloryConfig
 
 # These protocols have no dependencies and are safe to import
 from protocol import base, dnsp
@@ -171,6 +172,7 @@ class Mallory(Subject):
         self.protoinstances = []
         self.opts = options.options
         self.dbname = self.opts.trafficdb
+        self.datadir = self.opts.datadir
         self.debugon = False
         self.debugger = Debugger()
         self.config_protocols = config_proto.ConfigProtocols()
@@ -297,9 +299,14 @@ class Mallory(Subject):
             - A new thread for processing the DB Queue is created
             - The proxy begins listening for incoming connections
         """        
-        dbConn = TrafficDb(self.dbname)
+        dbConn = TrafficDb(self.dbname, self.datadir)
         self.dbname = dbConn.getDbName() #get the trafficDb being used
         self.debugger.setdatabase(self.dbname)
+
+        MalloryConfig.set("dbname", self.dbname)
+        MalloryConfig.set("datadir", self.datadir)
+        MalloryConfig.set("listen", self.opts.listen)
+        self.debugger.save_config(MalloryConfig.get_json())
         
         # Kick off a thread for the debugger
         #thread.start_new_thread(self.debugger.rpcserver, ())
