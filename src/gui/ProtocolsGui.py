@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore, Qt
 import Pyro.core
 
 from protocol import http, sslproto
+from protocol.base import TcpProtocol, UdpProtocol
 from config import MalloryConfig
 
 class ProtocolsGui(object):
@@ -179,8 +180,10 @@ class ProtocolsTableModel(QtCore.QAbstractTableModel):
             
             if index.column() == PROTO_DEBUG:
                 debuggable = spacing + "No" + spacing
-                
-                if proto.__class__ == "TcpProtocol":
+
+                # trying to fix Issue #15 if this == really mean this
+                #if proto.__class__ == "TcpProtocol":
+                if isinstance(proto, TcpProtocol):
                     debuggable = spacing + "Yes" + spacing
                 
                 return debuggable
