@@ -60,8 +60,7 @@ class MalloryGui(QtGui.QMainWindow):
         self.rulegui = None
         self.dbgui = None
         
-        #debugger_uri = "PYROLOC://127.0.0.1:7766/debugger"
-        self.remote_debugger = Pyro4.Proxy(MalloryConfig.get_pyro_uri("debugger"))
+        self.remote_debugger = Pyro4.Proxy(MalloryConfig.get_pyro_uri(MalloryConfig.debugger))
         j = self.remote_debugger.get_config()
         MalloryConfig.set_json(j)
 

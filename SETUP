@@ -9,7 +9,7 @@ HARDWARE:
 2 NICs [optional]
 
 SOFTWARE:
-Ubuntu Desktop (e.g. 10.04, 11.04)
+Ubuntu Desktop (e.g. 10.04, 11.04, 13.10)
 
 #################################################################
 #        Setup Instructions Using Install Script                #
@@ -30,13 +30,21 @@ sudo apt-get install mercurial
 hg clone https://bitbucket.org/IntrepidusGroup/mallory
 
 5.) Setup Mallory Dependencies
-sudo apt-get install python-pip, python-m2crypto, python-qt4
-sudo apt-get install pyro-gui, python-netfilter, python-pyasn1
-sudo apt-get install python-paramiko, python-twisted-web
-sudo apt-get install python-qt4-sql, libqtr-sql-sqlite
-sudo apt-get install sqlite3, build-essential
-sudo apt-get install libnetfilter-conntrack-dev
-sudo apt-get install libnetfilter-conntrack3
+sudo apt-get install build-essential
+sudo apt-get install sqlite3 python-qt4-sql libqt4-sql-sqlite \
+  python-qt4 pyqt4-dev-tools pyro-gui python-paramiko \
+  python-twisted-web python-pyasn1 python-netfilter \
+  libnetfilter-conntrack-dev libnetfilter-conntrack3
+
+sudo easy_install pip m2crypto pynetfilter_conntrack Pyro4 dnspython
+
+6.) Fix libnetfilter_conntrack.so.1 symlink for pynetfilter_conntrack
+# For i386:
+cd /usr/lib/i386-linux-gnu;
+sudo ln -s libnetfilter_conntrack.so libnetfilter_conntrack.so.1
+# For x86_64:
+cd /usr/lib/x86_64-linux-gnu;
+sudo ln -s libnetfilter_conntrack.so libnetfilter_conntrack.so.1
 
 #################################################################
 #         Getting Started                                       #
