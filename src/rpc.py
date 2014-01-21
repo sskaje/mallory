@@ -1,13 +1,16 @@
-import Pyro.core
-import Pyro.naming
+import Pyro4
 import logging
 import sys
 
 class RPCServer(object):
     
     def __init__(self):
-        Pyro.core.initServer()        
-        self.daemon = Pyro.core.Daemon()        
+        from config import MalloryConfig
+        # Make Pyro4 accept pickle again
+        # https://github.com/irmen/Pyro4/blob/master/docs/source/clientcode.rst#upgrading-older-code-that-relies-on-pickle
+        Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
+
+        self.daemon = Pyro4.Daemon(MalloryConfig.daemon_host, MalloryConfig.daemon_port, MalloryConfig.daemon_socket)
         self.log = logging.getLogger("mallorymain")
         
     def rpc_server(self):
@@ -21,7 +24,8 @@ class RPCServer(object):
         # Register the Pyro object here
         self.log.info(("RPCServer: add_remote_obj - adding remote object %s " 
                       " with remote object name '%s'") % (obj, name))
-        uri = self.daemon.connect(obj, name)
+        uri = self.daemon.register(obj, name)
+        print "RPC: uri=", uri
         
     def start_server(self):
         self.log.info("RPCServer: start_server - starting up")     

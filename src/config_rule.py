@@ -1,14 +1,13 @@
 import ConfigParser
 import protocol
-import sets
 import logging
-import Pyro.core
+import Pyro4
 import observer
 import rule
 
 
 
-class ConfigRules(observer.Subject, Pyro.core.ObjBase):
+class ConfigRules(observer.Subject):
     """
     Rule configuration is to manage the RPC interface to getting and setting
     rules as well as the local activities of loading saved rule configuration.
@@ -16,7 +15,6 @@ class ConfigRules(observer.Subject, Pyro.core.ObjBase):
     """
     def __init__(self):
         observer.Subject.__init__(self)
-        Pyro.core.ObjBase.__init__(self)
         
         self.log = logging.getLogger("mallorymain")
         self.config_path = "rules.ini"

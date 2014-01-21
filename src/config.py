@@ -32,9 +32,9 @@ class Config(object):
 
 
 class MalloryConfigObject():
-    def __init__(self, dict):
-        for field in dict:
-            setattr(self, field, dict[field])
+    def __init__(self, dic):
+        for field in dic:
+            setattr(self, field, dic[field])
 
 
 class MalloryConfigVars():
@@ -49,12 +49,31 @@ class MalloryConfigVars():
 
 
 class MalloryConfig():
-    debugger_uri = "PYROLOC://127.0.0.1:7766/debugger"
-    config_protocols_uri = "PYROLOC://127.0.0.1:7766/config_proto"
-    config_rules_uri = "PYROLOC://127.0.0.1:7766/config_rules"
-
     def __init__(self):
         pass
+
+    daemon_host = "127.0.0.1"
+    daemon_port = 7766
+    daemon_socket = None
+
+    debugger = "debugger"
+    config_proto = "config_proto"
+    config_rules = "config_rules"
+    pyro_objs = [debugger, config_proto, config_rules]
+
+    @staticmethod
+    def get_pyro_uri(key):
+        """
+        Build Pyro4 URI from local config both HOST:PORT and Unixsocket are supported
+        """
+        prefix = "PYRO:"
+        if MalloryConfig.daemon_socket is None:
+            uri = MalloryConfig.daemon_host + ":" + str(MalloryConfig.daemon_port)
+        else:
+            uri = "./u:" + MalloryConfig.daemon_socket
+
+        if key in MalloryConfig.pyro_objs:
+            return prefix + key + "@" + uri
 
     @staticmethod
     def get_object():
@@ -70,9 +89,9 @@ class MalloryConfig():
         return config
 
     @staticmethod
-    def set_dict(dict):
-        for field in dict:
-            MalloryConfig.set(field, dict[field])
+    def set_dict(dic):
+        for field in dic:
+            MalloryConfig.set(field, dic[field])
 
     @staticmethod
     def get_json():
@@ -80,8 +99,8 @@ class MalloryConfig():
 
     @staticmethod
     def set_json(json_string):
-        dict = json.loads(json_string)
-        MalloryConfig.set_dict(dict)
+        dic = json.loads(json_string)
+        MalloryConfig.set_dict(dic)
 
     @staticmethod
     def get(key):

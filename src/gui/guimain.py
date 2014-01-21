@@ -20,7 +20,7 @@ from Mallory import Ui_MainWindow
 from debug import DebugEvent
 from binascii import hexlify, unhexlify
 from threading import Lock
-import Pyro.core
+import Pyro4
 import logging
 import AboutDialog
 
@@ -61,9 +61,13 @@ class MalloryGui(QtGui.QMainWindow):
         self.dbgui = None
         
         #debugger_uri = "PYROLOC://127.0.0.1:7766/debugger"
-        self.remote_debugger = Pyro.core.getProxyForURI(MalloryConfig.get("debugger_uri"))
+        self.remote_debugger = Pyro4.Proxy(MalloryConfig.get_pyro_uri("debugger"))
         j = self.remote_debugger.get_config()
         MalloryConfig.set_json(j)
+
+        # Make Pyro4 client use pickle again, for rule.Debug
+        # https://github.com/irmen/Pyro4/blob/master/docs/source/clientcode.rst#upgrading-older-code-that-relies-on-pickle
+        Pyro4.config.SERIALIZER = 'pickle'
 
         #self.main.dbname = self.remote_debugger.getdatabase()
         #self.proxy = xmlrpclib.ServerProxy("http://localhost:20757")

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #Copyright Intrepidus Group 2010
 #All Rights Reserved
 #Released under the following license
@@ -60,7 +62,6 @@
 #Agreement.
 
 
-#! /usr/bin/env python
 """
 Usage: %s [ database_filename ]
 """
@@ -166,7 +167,7 @@ class Mallory(Subject):
     def __init__(self, options):        
         Subject.__init__(self)
         self.log = logging.getLogger("mallorymain")
-        config.logsetup(self.log)        
+        config.logsetup(self.log)
         self.configured_protos = []
         self.configured_plugin_managers = []
         self.protoinstances = []
@@ -174,11 +175,19 @@ class Mallory(Subject):
         self.dbname = self.opts.trafficdb
         self.datadir = self.opts.datadir
         self.debugon = False
-        self.debugger = Debugger()
         self.config_protocols = config_proto.ConfigProtocols()
         self.config_rules = config_rule.ConfigRules()
         self.rpcserver = rpc.RPCServer()
         self.nftool = netfilter.NetfilterTool()
+
+        # Fill values in MalloryConfig before Debugger constructed
+        MalloryConfig.set("dbname",  self.opts.trafficdb)
+        MalloryConfig.set("datadir", self.opts.datadir)
+        MalloryConfig.set("listen",  self.opts.listen)
+
+        self.debugger = Debugger()
+        self.debugger.save_config(MalloryConfig.get_json())
+
                         
     def configure_protocol(self, protocol, action):
         """
@@ -302,11 +311,6 @@ class Mallory(Subject):
         dbConn = TrafficDb(self.dbname, self.datadir)
         self.dbname = dbConn.getDbName() #get the trafficDb being used
         self.debugger.setdatabase(self.dbname)
-
-        MalloryConfig.set("dbname", self.dbname)
-        MalloryConfig.set("datadir", self.datadir)
-        MalloryConfig.set("listen", self.opts.listen)
-        self.debugger.save_config(MalloryConfig.get_json())
         
         # Kick off a thread for the debugger
         #thread.start_new_thread(self.debugger.rpcserver, ())
@@ -314,9 +318,9 @@ class Mallory(Subject):
         # Mallory needs to know if the protocol config changes
         self.config_protocols.attach(self)
         
-        self.rpcserver.add_remote_obj(self.debugger, "debugger")
-        self.rpcserver.add_remote_obj(self.config_protocols, "config_proto")
-        self.rpcserver.add_remote_obj(self.config_rules, "config_rules")
+        self.rpcserver.add_remote_obj(self.debugger, MalloryConfig.debugger)
+        self.rpcserver.add_remote_obj(self.config_protocols, MalloryConfig.config_proto)
+        self.rpcserver.add_remote_obj(self.config_rules, MalloryConfig.config_rules)
         
         self.configure_protocols()
         

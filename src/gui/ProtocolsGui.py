@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore, Qt
-import Pyro.core
+import Pyro4
 
 from protocol import http, sslproto
 from protocol.base import TcpProtocol, UdpProtocol
@@ -23,7 +23,7 @@ class ProtocolsGui(object):
         # Remote protocol configuration object
         #config_protocols_uri = "PYROLOC://127.0.0.1:7766/config_proto"
         self.remote_proto = \
-            Pyro.core.getProxyForURI(MalloryConfig.get("config_protocols_uri"))
+            Pyro4.Proxy(MalloryConfig.get_pyro_uri("config_proto"))
         
         # Setup model for table view    
         self.protocols_model = ProtocolsTableModel(self.remote_proto)
