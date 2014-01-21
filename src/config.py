@@ -33,7 +33,7 @@ class Config(object):
 
 class MalloryConfigObject():
     def __init__(self, dic):
-        for field in dic:
+        for field in dic.iterkeys():
             setattr(self, field, dic[field])
 
 
@@ -90,7 +90,7 @@ class MalloryConfig():
 
     @staticmethod
     def set_dict(dic):
-        for field in dic:
+        for field in dic.iterkeys():
             MalloryConfig.set(field, dic[field])
 
     @staticmethod
