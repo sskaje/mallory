@@ -12,9 +12,9 @@ import thread
 import rule
 
 
-import dns
-import dns.message
-import dns.rdatatype
+#import dns
+#import dns.message
+#import dns.rdatatype
 
 from observer import Subject
 from debug import DebugEvent

@@ -33,9 +33,7 @@ class RuleEdit(object):
         self.main = main
         
         # Remote protocol configuration object
-        #config_rules_uri = "PYROLOC://127.0.0.1:7766/config_rules"
-        self.remote_rule = \
-            Pyro4.Proxy(MalloryConfig.get_pyro_uri("config_rules"))
+        self.remote_rule = Pyro4.Proxy(MalloryConfig.get_pyro_uri(MalloryConfig.config_rules))
 
         rules = self.remote_rule.get_rules()
         

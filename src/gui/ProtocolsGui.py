@@ -21,9 +21,7 @@ class ProtocolsGui(object):
         self.splitter_proto.setSizes([200, 100])
                 
         # Remote protocol configuration object
-        #config_protocols_uri = "PYROLOC://127.0.0.1:7766/config_proto"
-        self.remote_proto = \
-            Pyro4.Proxy(MalloryConfig.get_pyro_uri("config_proto"))
+        self.remote_proto = Pyro4.Proxy(MalloryConfig.get_pyro_uri(MalloryConfig.config_proto))
         
         # Setup model for table view    
         self.protocols_model = ProtocolsTableModel(self.remote_proto)
