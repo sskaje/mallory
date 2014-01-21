@@ -13,7 +13,7 @@ import tempfile
 import traceback
 import cert_auth
 
-from x509 import *
+#from M2Crypto.X509 import *
 from   pyasn1.codec.der import decoder
 
 class SSLProtocol(TcpProtocol):
