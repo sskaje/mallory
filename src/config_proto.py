@@ -1,16 +1,14 @@
 import ConfigParser
 import protocol
-import sets
 import logging
-import Pyro.core
+import Pyro4
 import observer
 
 
-class ConfigProtocols(observer.Subject, Pyro.core.ObjBase):
+class ConfigProtocols(observer.Subject):
     def __init__(self):
         observer.Subject.__init__(self)
-        Pyro.core.ObjBase.__init__(self)
-        
+
         self.config_path = "protos.ini"
         # self.protocols should be type array
         self.protocols = None
@@ -35,7 +33,8 @@ class ConfigProtocols(observer.Subject, Pyro.core.ObjBase):
         config_items = cp.items("protocols")
         
         protos = []
-        proto_ports = sets.Set()
+        # use built-in set instead of Sets.set
+        proto_ports = set()
         for cur_proto in config_items: 
             proto_data = cur_proto[1].split(":")
             proto_name = proto_data[0]

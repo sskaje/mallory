@@ -1,5 +1,5 @@
 from observer import Subject
-import Pyro.core
+import Pyro4
 import Queue
 import logging
 import UserDict
@@ -44,15 +44,14 @@ class DebugEvent(object):
         return s
 
 
-class Debugger(Subject, Pyro.core.ObjBase):
+class Debugger(Subject):
     """
     The Debugger class is the primary remote interface for any remote stream
     debugging clients. 
     """
     def __init__(self):
         Subject.__init__(self)
-        Pyro.core.ObjBase.__init__(self)
-        
+
         self.debugq = Queue.Queue()
         self.debugon = False
         self.log = logging.getLogger("mallorymain")

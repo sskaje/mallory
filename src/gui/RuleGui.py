@@ -4,7 +4,7 @@ import pickle
 import sys
 import muckpipe
 import binascii
-import Pyro
+import Pyro4
 from config import MalloryConfig
 
 from PyQt4 import QtGui, QtCore
@@ -35,7 +35,7 @@ class RuleEdit(object):
         # Remote protocol configuration object
         #config_rules_uri = "PYROLOC://127.0.0.1:7766/config_rules"
         self.remote_rule = \
-            Pyro.core.getProxyForURI(MalloryConfig.get("config_rules_uri"))
+            Pyro4.Proxy(MalloryConfig.get_pyro_uri("config_rules"))
 
         rules = self.remote_rule.get_rules()
         

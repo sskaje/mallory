@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #    Mallory GUI
 #    Copyright (C) 2010  Intrepidus Group 
 #
