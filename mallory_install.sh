@@ -47,6 +47,12 @@ function phase0 {
   exit 0
 }
 
+function fix_libnetfilter_conntrack_so {
+  if [ -e $1 ] && [ ! -f ${1}.1 ]; then
+    sudo ln -s $1 ${1}.1
+  fi
+}
+
 function phase1 {
   print_header
   echo "beginning Mallory installation"
@@ -59,12 +65,16 @@ function phase1 {
 
   echo "installing Mallory dependencies"
   sudo apt-get -y install build-essential mercurial libnetfilter-conntrack-dev libnetfilter-conntrack3 |tee -a ${UPDATE_LOG}
-  if [ ! -f /usr/lib/netfilter_conntrack.so.1 ]; then
-    sudo ln -s /usr/lib/libnetfilter_conntrack.so /usr/lib/libnetfilter_conntrack.so.1
-  fi
-  sudo apt-get -y install python-pip python-m2crypto python-qt4 pyro-gui python-netfilter python-pyasn1 |tee -a ${UPDATE_LOG}
+  sudo apt-get -y install python-qt4 pyro-gui python-netfilter python-pyasn1 |tee -a ${UPDATE_LOG}
   sudo apt-get -y install python-paramiko python-twisted-web python-qt4-sql libqt4-sql-sqlite sqlite3 |tee -a ${UPDATE_LOG}
-  sudo easy_install pynetfilter_conntrack
+  sudo apt-get -y install python-pip python-m2crypto |tee -a ${UPDATE_LOG}
+
+  sudo easy_install pip m2crypto pynetfilter_conntrack Pyro4 dnspython Pillow
+
+  fix_libnetfilter_conntrack_so /usr/lib/libnetfilter_conntrack.so
+  fix_libnetfilter_conntrack_so /usr/lib/i386-linux-gnu/libnetfilter_conntrack.so
+  fix_libnetfilter_conntrack_so /usr/lib/x86_64-linux-gnu/libnetfilter_conntrack.so
+
   echo ""
 
   echo "enter directory you'd like Mallory to be installed to"
