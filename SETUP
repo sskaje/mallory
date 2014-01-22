@@ -36,7 +36,8 @@ sudo apt-get install sqlite3 python-qt4-sql libqt4-sql-sqlite \
   python-twisted-web python-pyasn1 python-netfilter \
   libnetfilter-conntrack-dev libnetfilter-conntrack3
 
-sudo easy_install pip m2crypto pynetfilter_conntrack Pyro4 dnspython
+sudo easy_install pip m2crypto pynetfilter_conntrack Pyro4 \
+  dnspython Pillow
 
 6.) Fix libnetfilter_conntrack.so.1 symlink for pynetfilter_conntrack
 # For i386:
